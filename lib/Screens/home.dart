@@ -151,7 +151,7 @@ class _HomeState extends State<Home> {
                           'Good afternoon',
                           style: TextStyle(
                             fontWeight: FontWeight.w500,
-                            fontSize: 16,
+                            fontSize: 18,
                             color: Color.fromARGB(255, 224, 223, 223),
                           ),
                         ),
@@ -159,7 +159,7 @@ class _HomeState extends State<Home> {
                           'Pavan',
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
-                            fontSize: 20,
+                            fontSize: 22,
                             color: Colors.white,
                           ),
                         ),
