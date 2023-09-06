@@ -12,15 +12,17 @@ class Bottom extends StatefulWidget {
 
 class _BottomState extends State<Bottom> {
   int index_color = 0;
-  List Screen = [Home(), Statistics(), Home(), Statistics()];
+  List Screen = [
+    Home(),
+    Statistics(),
+  ];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Screen[index_color],
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.of(context)
-              .push(MaterialPageRoute(builder: (context) => Add_Screen()));
+          Navigator.of(context).push(MaterialPageRoute(builder: (context) => Add_Screen()));
         },
         child: Icon(Icons.add),
         backgroundColor: Color(0xff368983),
@@ -45,6 +47,7 @@ class _BottomState extends State<Bottom> {
                   color: index_color == 0 ? Color(0xff368983) : Colors.grey,
                 ),
               ),
+              SizedBox(width: 10),
               GestureDetector(
                 onTap: () {
                   setState(() {
@@ -55,31 +58,6 @@ class _BottomState extends State<Bottom> {
                   Icons.bar_chart_outlined,
                   size: 30,
                   color: index_color == 1 ? Color(0xff368983) : Colors.grey,
-                ),
-              ),
-              SizedBox(width: 10),
-              GestureDetector(
-                onTap: () {
-                  setState(() {
-                    index_color = 2;
-                  });
-                },
-                child: Icon(
-                  Icons.account_balance_wallet_outlined,
-                  size: 30,
-                  color: index_color == 2 ? Color(0xff368983) : Colors.grey,
-                ),
-              ),
-              GestureDetector(
-                onTap: () {
-                  setState(() {
-                    index_color = 3;
-                  });
-                },
-                child: Icon(
-                  Icons.person_outlined,
-                  size: 30,
-                  color: index_color == 3 ? Color(0xff368983) : Colors.grey,
                 ),
               ),
             ],
