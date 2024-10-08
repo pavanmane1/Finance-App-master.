@@ -15,67 +15,95 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   var history;
   final box = Hive.box<Add_data>('data');
-  final List<String> day = ['Monday', "Tuesday", "Wednesday", "Thursday", 'friday', 'saturday', 'sunday'];
+  final List<String> day = ['Monday', "Tuesday", "Wednesday", "Thursday", 'Friday', 'Saturday', 'Sunday'];
+
+  // Controller for budget input
+  final TextEditingController _budgetController = TextEditingController();
+  double? budgetAmount;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-          child: ValueListenableBuilder(
-              valueListenable: box.listenable(),
-              builder: (context, value, child) {
-                return CustomScrollView(
-                  slivers: [
-                    SliverToBoxAdapter(
-                      child: SizedBox(height: 340, child: _head()),
-                    ),
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Transactions History',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 19,
-                                color: Colors.black,
-                              ),
-                            ),
-                            Text(
-                              'See all',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 15,
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ],
+        child: ValueListenableBuilder(
+          valueListenable: box.listenable(),
+          builder: (context, value, child) {
+            return CustomScrollView(
+              slivers: [
+                SliverToBoxAdapter(
+                  child: SizedBox(height: 340, child: _head()),
+                ),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Transactions History',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 19,
+                            color: Colors.black,
+                          ),
                         ),
-                      ),
+                        PopupMenuButton<String>(
+                          icon: Icon(
+                            Icons.more_horiz_sharp,
+                            color: const Color.fromARGB(255, 49, 49, 49),
+                          ),
+                          onSelected: (value) {
+                            // Handle the selected option
+                            if (value == 'see_all') {
+                              // Implement your logic for "See All"
+                              print("See All selected");
+                            } else if (value == 'see_month') {
+                              // Implement your logic for "See Month"
+                              print("See Month selected");
+                            }
+                          },
+                          itemBuilder: (BuildContext context) {
+                            return [
+                              const PopupMenuItem<String>(
+                                value: 'see_all',
+                                child: Text('See All'),
+                              ),
+                              const PopupMenuItem<String>(
+                                value: 'see_month',
+                                child: Text('See Month'),
+                              ),
+                            ];
+                          },
+                        ),
+                      ],
                     ),
-                    SliverList(
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) {
-                          history = box.values.toList()[index];
-                          return getList(history, index);
-                        },
-                        childCount: box.length,
-                      ),
-                    )
-                  ],
-                );
-              })),
+                  ),
+                ),
+                SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      history = box.values.toList()[index];
+                      return getList(history, index);
+                    },
+                    childCount: box.length,
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
     );
   }
 
   Widget getList(Add_data history, int index) {
     return Dismissible(
-        key: UniqueKey(),
-        onDismissed: (direction) {
-          _showDeleteConfirmationDialog(history, index);
-        },
-        child: get(index, history));
+      key: UniqueKey(),
+      onDismissed: (direction) {
+        _showDeleteConfirmationDialog(history, index);
+      },
+      child: get(index, history),
+    );
   }
 
   void _showDeleteConfirmationDialog(Add_data history, int index) {
@@ -165,22 +193,33 @@ class _HomeState extends State<Home> {
               child: Stack(
                 children: [
                   Positioned(
-                    top: 35,
-                    left: 340,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(7),
-                      child: Container(
-                        height: 40,
-                        width: 40,
-                        color: Color.fromRGBO(250, 250, 250, 0.1),
-                        child: Icon(
-                          Icons.notification_add_outlined,
-                          size: 30,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
+                      top: 35,
+                      left: 285,
+                      child: Row(
+                        children: [
+                          Text(
+                            'Notify',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w300,
+                              color: Colors.white,
+                            ),
+                          ),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(7),
+                            child: IconButton(
+                              icon: Icon(
+                                Icons.notification_add_outlined,
+                                size: 30,
+                                color: Colors.white,
+                              ),
+                              onPressed: () {
+                                _showBudgetPopup();
+                              },
+                            ),
+                          ),
+                        ],
+                      )),
                   Padding(
                     padding: const EdgeInsets.only(top: 35, left: 10),
                     child: Column(
@@ -204,7 +243,7 @@ class _HomeState extends State<Home> {
                         ),
                       ],
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
@@ -248,28 +287,52 @@ class _HomeState extends State<Home> {
                           color: Colors.white,
                         ),
                       ),
-                      Icon(
-                        Icons.more_horiz_sharp,
-                        color: Colors.white,
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 7),
-                Padding(
-                  padding: const EdgeInsets.only(left: 15),
-                  child: Row(
-                    children: [
                       Text(
-                        '\₹ ${total()}',
+                        'Budget',
                         style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 25,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 16,
                           color: Colors.white,
                         ),
                       ),
                     ],
                   ),
+                ),
+                SizedBox(height: 7),
+                Row(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 15),
+                      child: Row(
+                        children: [
+                          Text(
+                            '\₹ ${total()}',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 25,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(width: 120),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 15),
+                      child: Row(
+                        children: [
+                          Text(
+                            '\₹ ${total()}',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 25,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
                 SizedBox(height: 25),
                 Padding(
@@ -348,12 +411,40 @@ class _HomeState extends State<Home> {
                       ),
                     ],
                   ),
-                )
+                ),
               ],
             ),
           ),
-        )
+        ),
       ],
+    );
+  }
+
+  // Function to display the budget popup
+  void _showBudgetPopup() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Set Budget Notification'),
+          content: TextField(
+            controller: _budgetController,
+            decoration: InputDecoration(hintText: 'Enter budget amount'),
+            keyboardType: TextInputType.number,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  budgetAmount = double.tryParse(_budgetController.text);
+                });
+                Navigator.of(context).pop();
+              },
+              child: Text('Set'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

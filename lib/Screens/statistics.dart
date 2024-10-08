@@ -72,17 +72,13 @@ class _StatisticsState extends State<Statistics> {
                             width: 80,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10),
-                              color: index_color == index
-                                  ? Color.fromARGB(255, 47, 125, 121)
-                                  : Colors.white,
+                              color: index_color == index ? Color.fromARGB(255, 47, 125, 121) : Colors.white,
                             ),
                             alignment: Alignment.center,
                             child: Text(
                               day[index],
                               style: TextStyle(
-                                color: index_color == index
-                                    ? Colors.white
-                                    : Colors.black,
+                                color: index_color == index ? Colors.white : Colors.black,
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -106,15 +102,7 @@ class _StatisticsState extends State<Statistics> {
                   children: [
                     Text(
                       'Top Spending',
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold),
-                    ),
-                    Icon(
-                      Icons.swap_vert,
-                      size: 25,
-                      color: Colors.grey,
+                      style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),

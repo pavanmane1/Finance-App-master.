@@ -1,11 +1,8 @@
-
 import 'package:flutter/material.dart';
-import 'package:managment/data/model/add_date.dart';
-import 'package:managment/data/utlity.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 class Chart extends StatefulWidget {
-  int indexx;
+  final int indexx;
   Chart({Key? key, required this.indexx}) : super(key: key);
 
   @override
@@ -13,65 +10,54 @@ class Chart extends StatefulWidget {
 }
 
 class _ChartState extends State<Chart> {
-  List<Add_data>? a;
-  bool b = true;
-  bool j = true;
+  late TooltipBehavior _tooltipBehavior;
+
+  @override
+  void initState() {
+    _tooltipBehavior = TooltipBehavior(enable: true);
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-    switch (widget.indexx) {
-      case 0:
-        a = today();
-        b = true;
-        j = true;
-        break;
-      case 1:
-        a = week();
-        b = false;
-        j = true;
-        break;
-      case 2:
-        a = month();
-        b = false;
-        j = true;
-        break;
-      case 3:
-        a = year();
-
-        j = false;
-        break;
-      default:
-    }
-    return Container(
-      width: double.infinity,
-      height: 300,
-      child: SfCartesianChart(
-        primaryXAxis: CategoryAxis(),
-        series: <SplineSeries<SalesData, String>>[
-          SplineSeries<SalesData, String>(
-            color: Color.fromARGB(255, 47, 125, 121),
-            width: 3,
-            dataSource: <SalesData>[
-              ...List.generate(time(a!, b ? true : false).length, (index) {
-                return SalesData(
-                    j
-                        ? b
-                            ? a![index].datetime.hour.toString()
-                            : a![index].datetime.day.toString()
-                        : a![index].datetime.month.toString(),
-                    b
-                        ? index > 0
-                            ? time(a!, true)[index] + time(a!, true)[index - 1]
-                            : time(a!, true)[index]
-                        : index > 0
-                            ? time(a!, false)[index] +
-                                time(a!, false)[index - 1]
-                            : time(a!, false)[index]);
-              })
-            ],
-            xValueMapper: (SalesData sales, _) => sales.year,
-            yValueMapper: (SalesData sales, _) => sales.sales,
-          )
-        ],
+    return Center(
+      child: Container(
+        child: SfCartesianChart(
+          // Initialize category axis
+          primaryXAxis: CategoryAxis(),
+          legend: Legend(isVisible: true),
+          tooltipBehavior: _tooltipBehavior,
+          series: <ChartSeries<SalesData, String>>[
+            // Series for Income
+            LineSeries<SalesData, String>(
+              name: 'Income',
+              dataSource: <SalesData>[
+                SalesData('Jan', 5000),
+                SalesData('Feb', 400),
+                SalesData('Mar', 60),
+                SalesData('Apr', 70),
+                SalesData('May', 80),
+              ],
+              xValueMapper: (SalesData sales, _) => sales.year,
+              yValueMapper: (SalesData sales, _) => sales.sales,
+              dataLabelSettings: DataLabelSettings(isVisible: true),
+            ),
+            // Series for Expenses
+            LineSeries<SalesData, String>(
+              name: 'Expenses',
+              dataSource: <SalesData>[
+                SalesData('Jan', 0),
+                SalesData('Feb', 28),
+                SalesData('Mar', 3500),
+                SalesData('Apr', 32),
+                SalesData('May', 40),
+              ],
+              xValueMapper: (SalesData sales, _) => sales.year,
+              yValueMapper: (SalesData sales, _) => sales.sales,
+              dataLabelSettings: DataLabelSettings(isVisible: true),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -80,5 +66,5 @@ class _ChartState extends State<Chart> {
 class SalesData {
   SalesData(this.year, this.sales);
   final String year;
-  final int sales;
+  final double sales;
 }

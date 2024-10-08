@@ -1,39 +1,98 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:managment/data/model/add_date.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:http/http.dart' as http;
 
-class Add_Screen extends StatefulWidget {
-  const Add_Screen({super.key});
+class AddScreen extends StatefulWidget {
+  const AddScreen({super.key});
 
   @override
-  State<Add_Screen> createState() => _Add_ScreenState();
+  State<AddScreen> createState() => _AddScreenState();
 }
 
-class _Add_ScreenState extends State<Add_Screen> {
-  final box = Hive.box<Add_data>('data');
-  DateTime date = new DateTime.now();
-  String? selctedItem;
+class _AddScreenState extends State<AddScreen> {
+  DateTime date = DateTime.now();
+  String? selectedItem; // Selected category
+  String? selectedItemType; // Selected type
+  final TextEditingController explanationController = TextEditingController();
+  final TextEditingController amountController = TextEditingController();
+
+  List<Map<String, dynamic>> categories = []; // Store categories with types
+  final List<String> itemTypeOptions = ['Income', 'Expense'];
+  final List<String> _itemei = ['Income', "Expense"];
   String? selctedItemi;
-  final TextEditingController expalin_C = TextEditingController();
-  FocusNode ex = FocusNode();
-  final TextEditingController amount_c = TextEditingController();
-  FocusNode amount_ = FocusNode();
-  final List<String> _item = ['food', "Transfer", "Transportation", "Education" ];
-  final List<String> _itemei = [
-    'Income',
-    "Expense",
-  ];
+
   @override
   void initState() {
     super.initState();
-    ex.addListener(() {
-      setState(() {});
-    });
-    amount_.addListener(() {
-      setState(() {});
-    });
+    fetchCategories(); // Fetch categories when the screen loads
   }
 
+  // Function to fetch categories from the API
+  Future<void> fetchCategories() async {
+    final url = 'http://192.168.1.45:8081/api/expensetracking/categories'; // Replace with your API URL
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final List data = jsonDecode(response.body);
+        setState(() {
+          // Store categories with their types
+          categories = data.map((category) {
+            return {
+              'category_id': category['category_id'],
+              'category_name': category['category_name'],
+              'types': category['types'], // Store the types directly
+            };
+          }).toList();
+        });
+      } else {
+        print('Failed to load categories');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
+  // Function to create a new transaction
+  Future<void> createTransaction() async {
+    final url = 'http://192.168.1.45:8081/api/expensetracking/transactions'; // Replace with your API URL
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'user_id': 'your_user_id', // Replace with the actual user ID
+          'category_id': categories.firstWhere((cat) => cat['category_name'] == selectedItem)['category_id'],
+          'amount': double.tryParse(amountController.text) ?? 0,
+          'transaction_date': date.toIso8601String(), // Format date as ISO string
+          'description': explanationController.text,
+          'category_type': selectedItemType // Type of the transaction (Income/Expense)
+        }),
+      );
+      print(
+        jsonEncode({
+          'user_id': 'your_user_id', // Replace with the actual user ID
+          'category_id': categories.firstWhere((cat) => cat['category_name'] == selectedItem)['category_id'],
+          'amount': double.tryParse(amountController.text) ?? 0,
+          'transaction_date': date.toIso8601String(), // Format date as ISO string
+          'description': explanationController.text,
+          'category_type': selectedItemType // Type of the transaction (Income/Expense)
+        }),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        // Handle successful transaction creation
+        final responseData = jsonDecode(response.body);
+        print('Transaction created: $responseData');
+        Navigator.of(context).pop(); // Optionally pop back to the previous screen
+      } else {
+        print('Failed to create transaction: ${response.body}');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
@@ -44,7 +103,7 @@ class _Add_ScreenState extends State<Add_Screen> {
             background_container(context),
             Positioned(
               top: 120,
-              child: main_container(),
+              child: mainContainer(),
             ),
           ],
         ),
@@ -52,7 +111,7 @@ class _Add_ScreenState extends State<Add_Screen> {
     );
   }
 
-  Container main_container() {
+  Container mainContainer() {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
@@ -62,30 +121,35 @@ class _Add_ScreenState extends State<Add_Screen> {
       width: 340,
       child: Column(
         children: [
-          SizedBox(height: 50),
-          name(),
           SizedBox(height: 30),
-          explain(),
+          nameDropdown(),
           SizedBox(height: 30),
-          amount(),
+          explanationField(),
+          SizedBox(height: 30),
+          amountField(),
+          SizedBox(height: 30),
+          typeDropdown(),
           SizedBox(height: 30),
           How(),
           SizedBox(height: 30),
-          date_time(),
+          dateSelector(),
           Spacer(),
-          save(),
+          saveButton(),
           SizedBox(height: 25),
         ],
       ),
     );
   }
 
-  GestureDetector save() {
+  GestureDetector saveButton() {
     return GestureDetector(
-      onTap: () {
-        var add = Add_data(selctedItemi!, amount_c.text, date, expalin_C.text, selctedItem!);
-        box.add(add);
-        Navigator.of(context).pop();
+      onTap: () async {
+        // Validate inputs before making the API call
+        if (selectedItem == null || selectedItemType == null || amountController.text.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please fill in all fields.')));
+          return;
+        }
+        await createTransaction(); // Call the createTransaction function
       },
       child: Container(
         alignment: Alignment.center,
@@ -102,32 +166,6 @@ class _Add_ScreenState extends State<Add_Screen> {
             fontWeight: FontWeight.w600,
             color: Colors.white,
             fontSize: 17,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget date_time() {
-    return Container(
-      alignment: Alignment.bottomLeft,
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10), border: Border.all(width: 2, color: Color(0xffC5C5C5))),
-      width: 300,
-      child: TextButton(
-        onPressed: () async {
-          DateTime? newDate = await showDatePicker(
-              context: context, initialDate: date, firstDate: DateTime(2020), lastDate: DateTime(2100));
-          if (newDate == Null) return;
-          setState(() {
-            date = newDate!;
-          });
-        },
-        child: Text(
-          'Date : ${date.year} / ${date.day} / ${date.month}',
-          style: TextStyle(
-            fontSize: 15,
-            color: Colors.black,
           ),
         ),
       ),
@@ -178,7 +216,7 @@ class _Add_ScreenState extends State<Add_Screen> {
           hint: Padding(
             padding: const EdgeInsets.only(top: 12),
             child: Text(
-              'Type',
+              'Mode',
               style: TextStyle(color: Colors.grey),
             ),
           ),
@@ -190,46 +228,34 @@ class _Add_ScreenState extends State<Add_Screen> {
     );
   }
 
-  Padding amount() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: TextField(
-        keyboardType: TextInputType.number,
-        focusNode: amount_,
-        controller: amount_c,
-        decoration: InputDecoration(
-          contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-          labelText: 'amount',
-          labelStyle: TextStyle(fontSize: 17, color: Colors.grey.shade500),
-          enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10), borderSide: BorderSide(width: 2, color: Color(0xffC5C5C5))),
-          focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10), borderSide: BorderSide(width: 2, color: Color(0xff368983))),
+  Widget dateSelector() {
+    return Container(
+      alignment: Alignment.bottomLeft,
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10), border: Border.all(width: 2, color: Color(0xffC5C5C5))),
+      width: 300,
+      child: TextButton(
+        onPressed: () async {
+          DateTime? newDate = await showDatePicker(
+            context: context,
+            initialDate: date,
+            firstDate: DateTime(2020),
+            lastDate: DateTime(2100),
+          );
+          if (newDate == null) return; // Check for null
+          setState(() {
+            date = newDate;
+          });
+        },
+        child: Text(
+          'Date: ${date.year} / ${date.day} / ${date.month}',
+          style: TextStyle(fontSize: 15, color: Colors.black),
         ),
       ),
     );
   }
 
-  Padding explain() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: TextField(
-        focusNode: ex,
-        controller: expalin_C,
-        decoration: InputDecoration(
-          contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-          labelText: 'explain',
-          labelStyle: TextStyle(fontSize: 17, color: Colors.grey.shade500),
-          enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10), borderSide: BorderSide(width: 2, color: Color(0xffC5C5C5))),
-          focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10), borderSide: BorderSide(width: 2, color: Color(0xff368983))),
-        ),
-      ),
-    );
-  }
-
-  Padding name() {
+  Padding typeDropdown() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 15),
       child: Container(
@@ -237,49 +263,97 @@ class _Add_ScreenState extends State<Add_Screen> {
         width: 300,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            width: 2,
-            color: Color(0xffC5C5C5),
-          ),
+          border: Border.all(width: 2, color: Color(0xffC5C5C5)),
         ),
         child: DropdownButton<String>(
-          value: selctedItem,
-          onChanged: ((value) {
+          value: selectedItemType,
+          onChanged: (value) {
             setState(() {
-              selctedItem = value!;
+              selectedItemType = value;
             });
-          }),
-          items: _item
-              .map((e) => DropdownMenuItem(
-                    child: Container(
-                      alignment: Alignment.center,
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 40,
-                            child: Image.asset('images/${e}.png'),
-                          ),
-                          SizedBox(width: 10),
-                          Text(
-                            e,
-                            style: TextStyle(fontSize: 18),
-                          )
-                        ],
-                      ),
-                    ),
-                    value: e,
-                  ))
-              .toList(),
-          selectedItemBuilder: (BuildContext context) => _item
-              .map((e) => Row(
-                    children: [
-                      Container(
-                        width: 42,
-                        child: Image.asset('images/${e}.png'),
-                      ),
-                      SizedBox(width: 5),
-                      Text(e)
-                    ],
+          },
+          items: selectedItem != null
+              ? (categories.firstWhere((cat) => cat['category_name'] == selectedItem)['types'] as List<dynamic>)
+                  .map<String>((type) => type as String) // Cast each item to String
+                  .map((type) => DropdownMenuItem<String>(
+                        child: Text(type, style: TextStyle(fontSize: 18)),
+                        value: type,
+                      ))
+                  .toList()
+              : [], // Return empty if no category is selected
+          hint: Padding(
+            padding: const EdgeInsets.only(top: 12),
+            child: Text(
+              'Type',
+              style: TextStyle(color: Colors.grey),
+            ),
+          ),
+          isExpanded: true,
+          underline: Container(),
+        ),
+      ),
+    );
+  }
+
+  Padding amountField() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: TextField(
+        keyboardType: TextInputType.number,
+        controller: amountController,
+        decoration: InputDecoration(
+          contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+          labelText: 'Amount',
+          labelStyle: TextStyle(fontSize: 17, color: Colors.grey.shade500),
+          enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10), borderSide: BorderSide(width: 2, color: Color(0xffC5C5C5))),
+          focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10), borderSide: BorderSide(width: 2, color: Color(0xff368983))),
+        ),
+      ),
+    );
+  }
+
+  Padding explanationField() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: TextField(
+        controller: explanationController,
+        decoration: InputDecoration(
+          contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+          labelText: 'Explanation',
+          labelStyle: TextStyle(fontSize: 17, color: Colors.grey.shade500),
+          enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10), borderSide: BorderSide(width: 2, color: Color(0xffC5C5C5))),
+          focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10), borderSide: BorderSide(width: 2, color: Color(0xff368983))),
+        ),
+      ),
+    );
+  }
+
+  Padding nameDropdown() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 15),
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 15),
+        width: 300,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(width: 2, color: Color(0xffC5C5C5)),
+        ),
+        child: DropdownButton<String>(
+          value: selectedItem,
+          onChanged: (value) {
+            setState(() {
+              selectedItem = value;
+              selectedItemType = null; // Reset selected type when category changes
+            });
+          },
+          items: categories
+              .map<DropdownMenuItem<String>>((category) => DropdownMenuItem<String>(
+                    child: Text(category['category_name'], style: TextStyle(fontSize: 18)),
+                    value: category['category_name'] as String, // Ensure the value is a String
                   ))
               .toList(),
           hint: Padding(
@@ -289,7 +363,6 @@ class _Add_ScreenState extends State<Add_Screen> {
               style: TextStyle(color: Colors.grey),
             ),
           ),
-          dropdownColor: Colors.white,
           isExpanded: true,
           underline: Container(),
         ),
@@ -326,7 +399,7 @@ class _Add_ScreenState extends State<Add_Screen> {
                       child: Icon(Icons.arrow_back, color: Colors.white),
                     ),
                     Text(
-                      'Adding',
+                      'Add Expenses',
                       style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Colors.white),
                     ),
                     Icon(

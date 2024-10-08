@@ -22,7 +22,7 @@ class _BottomState extends State<Bottom> {
       body: Screen[index_color],
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.of(context).push(MaterialPageRoute(builder: (context) => Add_Screen()));
+          Navigator.of(context).push(MaterialPageRoute(builder: (context) => AddScreen()));
         },
         child: Icon(Icons.add),
         backgroundColor: Color(0xff368983),
