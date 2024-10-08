@@ -18,19 +18,13 @@ class _Add_ScreenState extends State<Add_Screen> {
   FocusNode ex = FocusNode();
   final TextEditingController amount_c = TextEditingController();
   FocusNode amount_ = FocusNode();
-  final List<String> _item = [
-    'food',
-    "Transfer",
-    "Transportation",
-    "Education"
-  ];
+  final List<String> _item = ['food', "Transfer", "Transportation", "Education" ];
   final List<String> _itemei = [
     'Income',
-    "Expand",
+    "Expense",
   ];
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     ex.addListener(() {
       setState(() {});
@@ -89,8 +83,7 @@ class _Add_ScreenState extends State<Add_Screen> {
   GestureDetector save() {
     return GestureDetector(
       onTap: () {
-        var add = Add_data(
-            selctedItemi!, amount_c.text, date, expalin_C.text, selctedItem!);
+        var add = Add_data(selctedItemi!, amount_c.text, date, expalin_C.text, selctedItem!);
         box.add(add);
         Navigator.of(context).pop();
       },
@@ -119,16 +112,12 @@ class _Add_ScreenState extends State<Add_Screen> {
     return Container(
       alignment: Alignment.bottomLeft,
       decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(width: 2, color: Color(0xffC5C5C5))),
+          borderRadius: BorderRadius.circular(10), border: Border.all(width: 2, color: Color(0xffC5C5C5))),
       width: 300,
       child: TextButton(
         onPressed: () async {
           DateTime? newDate = await showDatePicker(
-              context: context,
-              initialDate: date,
-              firstDate: DateTime(2020),
-              lastDate: DateTime(2100));
+              context: context, initialDate: date, firstDate: DateTime(2020), lastDate: DateTime(2100));
           if (newDate == Null) return;
           setState(() {
             date = newDate!;
@@ -189,7 +178,7 @@ class _Add_ScreenState extends State<Add_Screen> {
           hint: Padding(
             padding: const EdgeInsets.only(top: 12),
             child: Text(
-              'How',
+              'Type',
               style: TextStyle(color: Colors.grey),
             ),
           ),
@@ -213,11 +202,9 @@ class _Add_ScreenState extends State<Add_Screen> {
           labelText: 'amount',
           labelStyle: TextStyle(fontSize: 17, color: Colors.grey.shade500),
           enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(width: 2, color: Color(0xffC5C5C5))),
+              borderRadius: BorderRadius.circular(10), borderSide: BorderSide(width: 2, color: Color(0xffC5C5C5))),
           focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(width: 2, color: Color(0xff368983))),
+              borderRadius: BorderRadius.circular(10), borderSide: BorderSide(width: 2, color: Color(0xff368983))),
         ),
       ),
     );
@@ -234,11 +221,9 @@ class _Add_ScreenState extends State<Add_Screen> {
           labelText: 'explain',
           labelStyle: TextStyle(fontSize: 17, color: Colors.grey.shade500),
           enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(width: 2, color: Color(0xffC5C5C5))),
+              borderRadius: BorderRadius.circular(10), borderSide: BorderSide(width: 2, color: Color(0xffC5C5C5))),
           focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(width: 2, color: Color(0xff368983))),
+              borderRadius: BorderRadius.circular(10), borderSide: BorderSide(width: 2, color: Color(0xff368983))),
         ),
       ),
     );
@@ -342,10 +327,7 @@ class _Add_ScreenState extends State<Add_Screen> {
                     ),
                     Text(
                       'Adding',
-                      style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white),
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Colors.white),
                     ),
                     Icon(
                       Icons.attach_file_outlined,

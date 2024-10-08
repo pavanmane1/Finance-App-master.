@@ -73,9 +73,39 @@ class _HomeState extends State<Home> {
     return Dismissible(
         key: UniqueKey(),
         onDismissed: (direction) {
-          history.delete();
+          _showDeleteConfirmationDialog(history, index);
         },
         child: get(index, history));
+  }
+
+  void _showDeleteConfirmationDialog(Add_data history, int index) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Delete Item'),
+          content: Text('Are you sure you want to delete '),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                setState(() {});
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  history.delete(); // Delete the item using the provided method
+                });
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   ListTile get(int index, Add_data history) {
@@ -109,6 +139,15 @@ class _HomeState extends State<Home> {
   }
 
   Widget _head() {
+    final currentTime = DateTime.now();
+    String greeting = 'Good afternoon';
+
+    if (currentTime.hour < 12) {
+      greeting = 'Good morning';
+    } else if (currentTime.hour >= 18) {
+      greeting = 'Good night';
+    }
+
     return Stack(
       children: [
         Column(
@@ -148,7 +187,7 @@ class _HomeState extends State<Home> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Good afternoon',
+                          greeting,
                           style: TextStyle(
                             fontWeight: FontWeight.w500,
                             fontSize: 18,
@@ -178,6 +217,11 @@ class _HomeState extends State<Home> {
             height: 170,
             width: 320,
             decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color.fromARGB(255, 43, 109, 104), Color(0xff214547)],
+              ),
               boxShadow: [
                 BoxShadow(
                   color: Color.fromRGBO(47, 125, 121, 0.3),
@@ -186,7 +230,6 @@ class _HomeState extends State<Home> {
                   spreadRadius: 6,
                 ),
               ],
-              color: Color.fromARGB(255, 47, 125, 121),
               borderRadius: BorderRadius.circular(15),
             ),
             child: Column(
@@ -206,7 +249,7 @@ class _HomeState extends State<Home> {
                         ),
                       ),
                       Icon(
-                        Icons.more_horiz,
+                        Icons.more_horiz_sharp,
                         color: Colors.white,
                       ),
                     ],
@@ -240,7 +283,7 @@ class _HomeState extends State<Home> {
                             radius: 13,
                             backgroundColor: Color.fromARGB(255, 85, 145, 141),
                             child: Icon(
-                              Icons.arrow_downward,
+                              Icons.arrow_downward_sharp,
                               color: Colors.white,
                               size: 19,
                             ),
