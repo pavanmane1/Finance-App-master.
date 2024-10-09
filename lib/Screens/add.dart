@@ -53,43 +53,101 @@ class _AddScreenState extends State<AddScreen> {
   }
 
   // Function to create a new transaction
+  bool isLoading = false; // Add a state to track the loading status
+
+  // Function to create a new transaction
   Future<void> createTransaction() async {
+    setState(() {
+      isLoading = true; // Start the loading indicator
+    });
+
     final url = 'http://192.168.1.45:8081/api/expensetracking/transactions'; // Replace with your API URL
     try {
       final response = await http.post(
         Uri.parse(url),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'user_id': 'your_user_id', // Replace with the actual user ID
+          'user_id': 1, // Replace with the actual user ID
           'category_id': categories.firstWhere((cat) => cat['category_name'] == selectedItem)['category_id'],
           'amount': double.tryParse(amountController.text) ?? 0,
-          'transaction_date': date.toIso8601String(), // Format date as ISO string
+          'transaction_date': date.toIso8601String(),
           'description': explanationController.text,
           'category_type': selectedItemType // Type of the transaction (Income/Expense)
         }),
       );
-      print(
-        jsonEncode({
-          'user_id': 'your_user_id', // Replace with the actual user ID
-          'category_id': categories.firstWhere((cat) => cat['category_name'] == selectedItem)['category_id'],
-          'amount': double.tryParse(amountController.text) ?? 0,
-          'transaction_date': date.toIso8601String(), // Format date as ISO string
-          'description': explanationController.text,
-          'category_type': selectedItemType // Type of the transaction (Income/Expense)
-        }),
-      );
+      print(jsonEncode({
+        'user_id': 'your_user_id', // Replace with the actual user ID
+        'category_id': categories.firstWhere((cat) => cat['category_name'] == selectedItem)['category_id'],
+        'amount': double.tryParse(amountController.text) ?? 0,
+        'transaction_date': date.toIso8601String(),
+        'description': explanationController.text,
+        'category_type': selectedItemType // Type of the transaction (Income/Expense)
+      }));
+      setState(() {
+        isLoading = false; // Stop the loading indicator
+      });
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        // Handle successful transaction creation
-        final responseData = jsonDecode(response.body);
-        print('Transaction created: $responseData');
-        Navigator.of(context).pop(); // Optionally pop back to the previous screen
+        // Show success Snackbar
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Transaction created successfully!'),
+          backgroundColor: Colors.green, // Green for success
+        ));
+        // Navigator.of(context).pop(); // Optionally pop back to the previous screen
       } else {
-        print('Failed to create transaction: ${response.body}');
+        // Show failure Snackbar
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Failed to create transaction: ${response.body}'),
+          backgroundColor: Colors.red, // Red for failure
+        ));
       }
     } catch (e) {
-      print('Error: $e');
+      setState(() {
+        isLoading = false; // Stop the loading indicator
+      });
+
+      // Show error Snackbar
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Error: $e'),
+        backgroundColor: Colors.red, // Red for failure
+      ));
     }
+  }
+
+  GestureDetector saveButton() {
+    return GestureDetector(
+      onTap: () async {
+        // Validate inputs before making the API call
+        if (selectedItem == null || selectedItemType == null || amountController.text.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text('Please fill in all fields.'),
+            backgroundColor: Colors.red,
+          ));
+          return;
+        }
+        await createTransaction(); // Call the createTransaction function
+      },
+      child: Container(
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(15),
+          color: Color(0xff368983),
+        ),
+        width: 120,
+        height: 50,
+        child: isLoading
+            ? CircularProgressIndicator(color: Colors.white) // Show loading indicator if `isLoading` is true
+            : Text(
+                'Save',
+                style: TextStyle(
+                  fontFamily: 'f',
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                  fontSize: 17,
+                ),
+              ),
+      ),
+    );
   }
 
   @override
@@ -141,36 +199,36 @@ class _AddScreenState extends State<AddScreen> {
     );
   }
 
-  GestureDetector saveButton() {
-    return GestureDetector(
-      onTap: () async {
-        // Validate inputs before making the API call
-        if (selectedItem == null || selectedItemType == null || amountController.text.isEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please fill in all fields.')));
-          return;
-        }
-        await createTransaction(); // Call the createTransaction function
-      },
-      child: Container(
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(15),
-          color: Color(0xff368983),
-        ),
-        width: 120,
-        height: 50,
-        child: Text(
-          'Save',
-          style: TextStyle(
-            fontFamily: 'f',
-            fontWeight: FontWeight.w600,
-            color: Colors.white,
-            fontSize: 17,
-          ),
-        ),
-      ),
-    );
-  }
+  // GestureDetector saveButton() {
+  //   return GestureDetector(
+  //     onTap: () async {
+  //       // Validate inputs before making the API call
+  //       if (selectedItem == null || selectedItemType == null || amountController.text.isEmpty) {
+  //         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please fill in all fields.')));
+  //         return;
+  //       }
+  //       await createTransaction(); // Call the createTransaction function
+  //     },
+  //     child: Container(
+  //       alignment: Alignment.center,
+  //       decoration: BoxDecoration(
+  //         borderRadius: BorderRadius.circular(15),
+  //         color: Color(0xff368983),
+  //       ),
+  //       width: 120,
+  //       height: 50,
+  //       child: Text(
+  //         'Save',
+  //         style: TextStyle(
+  //           fontFamily: 'f',
+  //           fontWeight: FontWeight.w600,
+  //           color: Colors.white,
+  //           fontSize: 17,
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Padding How() {
     return Padding(
