@@ -23,8 +23,18 @@ class _AddScreenState extends State<AddScreen> {
 
   @override
   void initState() {
+    DateTime testDate = DateTime(2025, 02, 25);
     super.initState();
     fetchCategories(); // Fetch categories when the screen loads
+    isDateInCurrentWeek(testDate);
+    // print(getCurrentMonthAsString().toString());
+    // print(getCurrentDayAsString(testDate).toString());
+    // DateTime now = DateTime.now(); // Change this to a specific date for testing
+    // DateTime firstDate = getweekfirstdate();
+    // DateTime lastDate = getweeklastdate();
+
+    // print('First Date of Current Month: ${firstDate.toIso8601String()}');
+    // print('Last Date of Current Month: ${lastDate.toIso8601String()}');
   }
 
   // Function to fetch categories from the API
@@ -72,7 +82,8 @@ class _AddScreenState extends State<AddScreen> {
           'amount': double.tryParse(amountController.text) ?? 0,
           'transaction_date': date.toIso8601String(),
           'description': explanationController.text,
-          'category_type': selectedItemType // Type of the transaction (Income/Expense)
+          'category_type': selectedItemType, // Type of the transaction (Income/Expense)
+          'category': selctedItemi
         }),
       );
       print(jsonEncode({
@@ -81,7 +92,8 @@ class _AddScreenState extends State<AddScreen> {
         'amount': double.tryParse(amountController.text) ?? 0,
         'transaction_date': date.toIso8601String(),
         'description': explanationController.text,
-        'category_type': selectedItemType // Type of the transaction (Income/Expense)
+        'category_type': selectedItemType,
+        'category': selctedItemi // Type of the transaction (Income/Expense)
       }));
       setState(() {
         isLoading = false; // Stop the loading indicator
@@ -245,11 +257,11 @@ class _AddScreenState extends State<AddScreen> {
         ),
         child: DropdownButton<String>(
           value: selctedItemi,
-          onChanged: ((value) {
+          onChanged: (value) {
             setState(() {
-              selctedItemi = value!;
+              selctedItemi = value;
             });
-          }),
+          },
           items: _itemei
               .map((e) => DropdownMenuItem(
                     child: Container(
@@ -351,6 +363,19 @@ class _AddScreenState extends State<AddScreen> {
         ),
       ),
     );
+  }
+
+  bool isDateInCurrentWeek(DateTime date) {
+    final now = date;
+
+    // Calculate the start of the week (last Sunday)
+    final startOfWeek = now.subtract(Duration(days: now.weekday)); // Sunday
+    // Calculate the end of the week (next Sunday)
+    final endOfWeek = startOfWeek.add(Duration(days: 7)); // Next Sunday
+    print("++" + startOfWeek.toIso8601String());
+    print("++" + endOfWeek.toIso8601String());
+    // Check if the date is within this range
+    return date.isAfter(startOfWeek.subtract(Duration(days: 1))) && date.isBefore(endOfWeek);
   }
 
   Padding amountField() {

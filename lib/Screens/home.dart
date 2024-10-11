@@ -170,7 +170,7 @@ class _HomeState extends State<Home> {
         ),
       ),
       title: Text(
-        transaction.description,
+        transaction.categoryType,
         style: TextStyle(
           fontSize: 17,
           fontWeight: FontWeight.w600,
@@ -187,183 +187,11 @@ class _HomeState extends State<Home> {
         style: TextStyle(
           fontWeight: FontWeight.w600,
           fontSize: 19,
-          color: transaction.categoryType == 'Income' ? Colors.green : Colors.red,
+          color: transaction.category.trim() == 'Income' ? Colors.green : Colors.red,
         ),
       ),
     );
   }
-
-  // Widget _head() {
-  //   final currentTime = DateTime.now();
-  //   String greeting = 'Good afternoon';
-
-  //   if (currentTime.hour < 12) {
-  //     greeting = 'Good morning';
-  //   } else if (currentTime.hour >= 18) {
-  //     greeting = 'Good night';
-  //   }
-
-  //   return Stack(
-  //     children: [
-  //       Column(
-  //         children: [
-  //           Container(
-  //             width: double.infinity,
-  //             height: 240,
-  //             decoration: BoxDecoration(
-  //               color: Color(0xff368983),
-  //               borderRadius: BorderRadius.only(
-  //                 bottomLeft: Radius.circular(20),
-  //                 bottomRight: Radius.circular(20),
-  //               ),
-  //             ),
-  //             child: Stack(
-  //               children: [
-  //                 Positioned(
-  //                     top: 35,
-  //                     left: 285,
-  //                     child: Row(
-  //                       children: [
-  //                         Text(
-  //                           'Notify',
-  //                           style: TextStyle(
-  //                             fontSize: 20,
-  //                             fontWeight: FontWeight.w300,
-  //                             color: Colors.white,
-  //                           ),
-  //                         ),
-  //                         ClipRRect(
-  //                           borderRadius: BorderRadius.circular(7),
-  //                           child: IconButton(
-  //                             icon: Icon(
-  //                               Icons.notification_add_outlined,
-  //                               size: 30,
-  //                               color: Colors.white,
-  //                             ),
-  //                             onPressed: () {
-  //                               _showBudgetPopup();
-  //                             },
-  //                           ),
-  //                         ),
-  //                       ],
-  //                     )),
-  //                 Padding(
-  //                   padding: const EdgeInsets.only(top: 35, left: 10),
-  //                   child: Column(
-  //                     crossAxisAlignment: CrossAxisAlignment.start,
-  //                     children: [
-  //                       Text(
-  //                         greeting,
-  //                         style: TextStyle(
-  //                           fontWeight: FontWeight.w500,
-  //                           fontSize: 18,
-  //                           color: Color.fromARGB(255, 224, 223, 223),
-  //                         ),
-  //                       ),
-  //                       Text(
-  //                         'Pavan',
-  //                         style: TextStyle(
-  //                           fontWeight: FontWeight.w600,
-  //                           fontSize: 22,
-  //                           color: Colors.white,
-  //                         ),
-  //                       ),
-  //                     ],
-  //                   ),
-  //                 ),
-  //               ],
-  //             ),
-  //           ),
-  //         ],
-  //       ),
-  //       Positioned(
-  //         top: 140,
-  //         left: 37,
-  //         child: Container(
-  //           height: 170,
-  //           width: 320,
-  //           decoration: BoxDecoration(
-  //             gradient: LinearGradient(
-  //               begin: Alignment.topLeft,
-  //               end: Alignment.bottomRight,
-  //               colors: [Color.fromARGB(255, 43, 109, 104), Color(0xff214547)],
-  //             ),
-  //             boxShadow: [
-  //               BoxShadow(
-  //                 color: Color.fromRGBO(47, 125, 121, 0.3),
-  //                 offset: Offset(0, 6),
-  //                 blurRadius: 12,
-  //                 spreadRadius: 6,
-  //               ),
-  //             ],
-  //             borderRadius: BorderRadius.circular(15),
-  //           ),
-  //           child: Column(
-  //             children: [
-  //               SizedBox(height: 10),
-  //               Padding(
-  //                 padding: const EdgeInsets.symmetric(horizontal: 15),
-  //                 child: Row(
-  //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //                   children: [
-  //                     Text(
-  //                       'Total Balance',
-  //                       style: TextStyle(
-  //                         fontWeight: FontWeight.w500,
-  //                         fontSize: 16,
-  //                         color: Colors.white,
-  //                       ),
-  //                     ),
-  //                     Text(
-  //                       'Budget',
-  //                       style: TextStyle(
-  //                         fontWeight: FontWeight.w500,
-  //                         fontSize: 16,
-  //                         color: Colors.white,
-  //                       ),
-  //                     ),
-  //                   ],
-  //                 ),
-  //               ),
-  //               SizedBox(height: 7),
-  //               Row(
-  //                 children: [
-  //                   Padding(
-  //                     padding: const EdgeInsets.only(left: 15),
-  //                     child: Row(
-  //                       children: [
-  //                         Text(
-  //                           '\₹ ${total()}',
-  //                           style: TextStyle(
-  //                             fontWeight: FontWeight.bold,
-  //                             fontSize: 25,
-  //                             color: Colors.white,
-  //                           ),
-  //                         ),
-  //                       ],
-  //                     ),
-  //                   ),
-  //                   SizedBox(width: 120),
-  //                   Padding(
-  //                     padding: const EdgeInsets.only(left: 10),
-  //                     child: Text(
-  //                       '\₹ ${budgetAmount ?? '0'}',
-  //                       style: TextStyle(
-  //                         fontWeight: FontWeight.bold,
-  //                         fontSize: 25,
-  //                         color: Colors.white,
-  //                       ),
-  //                     ),
-  //                   ),
-  //                 ],
-  //               ),
-  //             ],
-  //           ),
-  //         ),
-  //       ),
-  //     ],
-  //   );
-  // }
 
   Widget _head() {
     final currentTime = DateTime.now();
@@ -382,7 +210,6 @@ class _HomeState extends State<Home> {
             Container(
               width: double.infinity,
               height: 240,
-
               decoration: BoxDecoration(
                 color: Color(0xff368983),
                 borderRadius: BorderRadius.only(
@@ -509,7 +336,7 @@ class _HomeState extends State<Home> {
                             '\₹ ${total()}',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              fontSize: 25,
+                              fontSize: 20,
                               color: Colors.white,
                             ),
                           ),
@@ -525,7 +352,7 @@ class _HomeState extends State<Home> {
                             '\₹ ${total()}',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              fontSize: 25,
+                              fontSize: 16,
                               color: Colors.white,
                             ),
                           ),
@@ -602,7 +429,7 @@ class _HomeState extends State<Home> {
                         ),
                       ),
                       Text(
-                        '\₹ ${expenses()}',
+                        '\₹ -${expenses()}',
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 17,
@@ -622,19 +449,37 @@ class _HomeState extends State<Home> {
 
   double total() {
     return transactions.fold(0.0, (sum, transaction) {
-      return sum + double.parse(transaction.amount); // Adjust based on your data structure
+      String trimmedCategory = transaction.category.trim(); // Trim whitespace from category
+
+      if (trimmedCategory == "Income") {
+        return sum + double.parse(transaction.amount); // Add income
+      } else if (trimmedCategory == "Expense") {
+        return sum - double.parse(transaction.amount); // Subtract expense
+      }
+      return sum;
     });
   }
 
   double income() {
     return transactions.fold(0.0, (sum, transaction) {
-      return sum + double.parse(transaction.amount); // Adjust based on your data structure
+      String trimmedCategory = transaction.category.trim(); // Trim whitespace from category
+
+      if (trimmedCategory == "Income") {
+        return sum + double.parse(transaction.amount); // Add only income transactions
+      }
+      return sum;
     });
   }
 
   double expenses() {
     return transactions.fold(0.0, (sum, transaction) {
-      return sum + double.parse(transaction.amount); // Adjust based on your data structure
+      // Trim whitespaces from category string before comparison
+      bool isCheck = transaction.category.trim() == "Expense";
+      if (isCheck) {
+        print(transaction.category + " +++++++++++++");
+        return sum + double.parse(transaction.amount); // Add only expense transactions
+      }
+      return sum;
     });
   }
 

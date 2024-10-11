@@ -8,6 +8,7 @@ class Transactionsmodel {
   final String createdAt;
   final String updatedAt;
   final String categoryType;
+  final String category;
 
   Transactionsmodel({
     required this.transactionId,
@@ -19,19 +20,21 @@ class Transactionsmodel {
     required this.createdAt,
     required this.updatedAt,
     required this.categoryType,
+    required this.category,
   });
 
   factory Transactionsmodel.fromJson(Map<String, dynamic> json) {
     return Transactionsmodel(
-      transactionId: json['transaction_id'],
-      userId: json['user_id'],
-      categoryId: json['category_id'],
-      amount: json['amount'],
-      transactionDate: json['transaction_date'],
-      description: json['description'],
-      createdAt: json['created_at'],
-      updatedAt: json['updated_at'],
-      categoryType: json['category_type'],
+      transactionId: json['transaction_id'] ?? 0, // Default value if null
+      userId: json['user_id'] ?? 0, // Default value if null
+      categoryId: json['category_id'] ?? 0, // Default value if null
+      amount: json['amount'] ?? '', // Default to empty string if null
+      transactionDate: json['transaction_date'] ?? '', // Default to empty string if null
+      description: json['description'] ?? '', // Default to empty string if null
+      createdAt: json['created_at'] ?? '', // Default to empty string if null
+      updatedAt: json['updated_at'] ?? '', // Default to empty string if null
+      categoryType: json['category_type'] ?? '', // Default to empty string if null
+      category: json['category'] ?? '', // Default to empty string if null
     );
   }
 }
